@@ -1,0 +1,20 @@
+﻿<Window x:Class="ITpipes_Config.AudioRecordingInstructionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ITpipes_Config"
+        mc:Ignorable="d"
+        Title="Text-to-Speech Audio Recording Configuration Instructions" Height="760" Width="512" Closing="Window_Closing">
+    <Grid Background="AliceBlue">
+        <RichTextBox x:Name="rtBoxAudioCaptureSetupInstructions" IsReadOnly="True" IsReadOnlyCaretVisible="False" IsDocumentEnabled="True" DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext}">
+            <RichTextBox.Resources>
+                <Style TargetType="Hyperlink">
+                    
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="HyperLink_Clicked" />
+                </Style>
+            </RichTextBox.Resources>
+        </RichTextBox>
+    </Grid>
+</Window>

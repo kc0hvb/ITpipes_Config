@@ -1,0 +1,476 @@
+﻿<Window x:Class="ITpipes_Config.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:WPFMediaKit="clr-namespace:WPFMediaKit.DirectShow.Controls;assembly=WPFMediaKit"
+        xmlns:local="clr-namespace:ITpipes_Config"
+        xmlns:addrBk="clr-namespace:ITpipes_Config.AddressBook"
+        xmlns:vnControls="clr-namespace:ITpipes_Config.CustomControls"
+        Title="Tech Tool - ITpipes External Configuration" Height="620" Width="784" Icon="ITpipes_1.ico" ResizeMode="CanMinimize" Closing="Window_Closing">
+    <Window.DataContext>
+        <local:ITpipesSettingsViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <local:BooleanInverseConverter x:Key="TrueMeansFalseConverter"/>
+        <local:WholeNumberPercentConverter x:Key="PercentAsIntConverter"/>
+        <local:StringToNullableIntConverter x:Key="StrToNullableIntConverter"/>
+    </Window.Resources>
+    <Window.Background>
+        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+            <GradientStop Color="White"/>
+            <GradientStop Color="#FFB8D2FF" Offset="0.103"/>
+        </LinearGradientBrush>
+    </Window.Background>
+    <Grid>
+        <TabControl Margin="0,30,0,0" Background="#FFB8D2FF">
+            <TabItem x:Name="tabVideoSettings" Header="Video Settings" Margin="0,0,0,0" TabIndex="1000">
+                <TabItem.Background>
+                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                        <GradientStop Color="#FFB8D2FF"/>
+                        <GradientStop Color="#FFE5E5E5" Offset="1"/>
+                    </LinearGradientBrush>
+                </TabItem.Background>
+                <Grid Margin="0,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="311*"/>
+                        <ColumnDefinition Width="461*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFC0D4F0" Offset="0.222"/>
+                            <GradientStop Color="#FF4F9AFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    
+                    <Image x:Name="AForgeImageControl" Grid.Column="1" HorizontalAlignment="Right" Width="447" Margin="0,221,8,6" Source="{Binding AforgeFrameImage}"/>
+                    <Label Content="Format" Margin="9,10,219,469" RenderTransformOrigin="0.5,0.5">
+                        <Label.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform AngleX="0.693"/>
+                                <RotateTransform/>
+                                <TranslateTransform X="1.488"/>
+                            </TransformGroup>
+                        </Label.RenderTransform>
+                    </Label>
+                    <ComboBox x:Name="cbSelectedVideoProfile" HorizontalAlignment="Left" VerticalAlignment="Top" Width="239" Margin="72,10,0,0" Height="33" IsReadOnly="True" ItemsSource="{Binding Path=Settings.VideoCaptureProfiles}" DisplayMemberPath="FriendlyName" SelectedItem="{Binding Path=Settings.CurVidCapProfile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="1"/>
+
+                    <Label x:Name="lblVidFormatWarning" Content="" Margin="10,10,10,449" Grid.Column="1"/>
+
+                    <CheckBox x:Name="cboxVBR" Content="Use Variable Bitrate" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,102,0,0" Width="138" Height="19" IsChecked="{Binding ElementName=cbSelectedVideoProfile, Path=SelectedItem.UseVariableBitrate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="2"/>
+                    <vnControls:TextBoxWholeNumberPercent
+                        x:Name="tboxVBRquality" 
+                        IsEnabled="{Binding ElementName=cboxVBR, Path=IsChecked}" 
+                        Text="{Binding Path=SelectedItem.QualityPercent, ElementName=cbSelectedVideoProfile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnTargetUpdated=True}"
+                        
+                        HorizontalAlignment="Left" 
+                        Height="23" 
+                        VerticalAlignment="Top" 
+                        Width="120" 
+                        Margin="255,102,0,0" 
+                        Grid.ColumnSpan="2" TabIndex="3"/>
+                    <Label Content="Quality Percent:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="153,102,0,0" Width="97"/>
+                    <TextBox x:Name="tboxCBR" IsEnabled="{Binding ElementName=cboxVBR, Path=IsChecked, Converter={StaticResource TrueMeansFalseConverter }}" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Margin="235,102,0,0" Grid.Column="1" Text="{Binding ElementName=cbSelectedVideoProfile, Path=SelectedItem.VideoCaptureConstantBitrate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" TabIndex="4" />
+                    <Label Content="Constant Bitrate:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="123,98,0,0" Width="107" Grid.Column="1"/>
+                    <Label Content="Note: Minimum recommended CBR is 1 Mbit/s&#xA;Maximum recommended CBR is 8 Mbit/s" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="123,130,0,0" Grid.Column="1"/>
+                    <ComboBox x:Name="cbVideoCaptureSources" VerticalAlignment="Top" Margin="104,221,3,0" Height="23" ItemsSource="{Binding Path=Settings.AforgeVideoInputSources}" DisplayMemberPath="Name" SelectedItem="{Binding SettingsSelectedFilterInfo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="5" />
+                    <Label Content="Video Source" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,221,212,0"/>
+                    <!--ComboBox x:Name="cbAForgeResolution" Margin="104,287,3,0" Height="23" VerticalAlignment="Top" SelectionChanged="cbAForgeResolution_SelectionChanged"/-->
+                    <ComboBox x:Name="cbAForgeVideoPin" VerticalAlignment="Top" Height="23" Margin="104,254,3,0" SelectedItem="{Binding SelectedAforgeVideoPinFriendlyName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding AForgeVideoPinsWithFriendlyNames}" TabIndex="6" />
+                    <!--Label Content="Input Res." HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,287,0,0" Width="80"/-->
+                    <Label Content="Video Pin" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,254,0,0" Width="80"/>
+                    <Label Content="Select your video source. If the video preview displays&#xD;&#xA;your camera feed correctly, the video configuration is&#xD;&#xA;complete.&#xD;&#xA;&#xD;&#xA;If video does not appear, test all available Video Pins.&#xD;&#xA;&#xD;&#xA;If the video still does not appear correctly, check your&#xD;&#xA;video cables and verify that your video capture device&#xD;&#xA;is properly installed." HorizontalAlignment="Left" Margin="10,330,0,0" VerticalAlignment="Top" Height="156" Width="301"/>
+                    <Button x:Name="butAForgeDevicePropertyPage" Content="Device Configuration Menu" HorizontalAlignment="Left" VerticalAlignment="Top" Width="182" Margin="10,491,0,0" Command="{Binding OpenAForgeDevicePropertiesPage}" TabIndex="7">
+                        <Button.Background>
+                            <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                <GradientStop Color="#FFD7E3F9"/>
+                                <GradientStop Color="#FFC6D6FF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+                    <Label Content="Mbit/s" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="360,102,0,0"/>
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Counter Settings New" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="104" Margin="0" TabIndex="1001">
+                <TabItem.Background>
+                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                        <GradientStop Color="#FFB8D2FF"/>
+                        <GradientStop Color="#FFE5E5E5" Offset="1"/>
+                    </LinearGradientBrush>
+                </TabItem.Background>
+                <Grid>
+                    <CheckBox x:Name="chkBxEnableOverlay" Height="20" VerticalAlignment="Top" Margin="5,5,5,5" Width="150" HorizontalAlignment="Left" Content="Enable Overlay" IsChecked="{Binding Settings.OverlaySettingsObj.IsOverlayEnabled}" TabIndex="8"/>
+                    <GroupBox Header="Overlay Settings" Margin="5,20,5,5" IsEnabled="{Binding IsChecked, ElementName=chkBxEnableOverlay}">
+                        <Grid>
+                            <ComboBox x:Name="cmbBxSelectedOverlay" SelectedItem="{Binding Settings.ActiveCounterProfile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="FriendlyOverlayName" ItemsSource="{Binding Settings.OverlaySettingsObj.ControlsAvailable, UpdateSourceTrigger=PropertyChanged}" Margin="173,8,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left" Width="217" TabIndex="9"/>
+                            <Label x:Name="label4" Content="Counter Type" Width="100" Margin="10,10,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                            <TextBox x:Name="tboxMainlinePort" Margin="173,54,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left" Width="116" Text="{Binding Path=Settings.OverlaySettingsObj.OverlayPort}" TabIndex="10"/>
+                            <Label x:Name="label6" Content="Overlay Port" Margin="10,54,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left" Width="82"/>
+                            <TextBox x:Name="tboxNewLateralPort" Height="28" Margin="173,87,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="116" Text="{Binding Path=Settings.OverlaySettingsObj.LateralPort}" TabIndex="11"/>
+                            <Label x:Name="label7" Content="Lateral Port" Margin="10,87,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left" Width="82"/>
+                            <TextBox x:Name="tboxFltMainlineCalibration" Margin="173,138,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left" Width="116" Text="{Binding Path=Settings.OverlaySettingsObj.MainlineCalibration}" TabIndex="12"/>
+                            <Label x:Name="label8" Content="Mainline Calibration" HorizontalAlignment="Left" Margin="10,140,0,0" VerticalAlignment="Top"/>
+                            <TextBox x:Name="tboxFltLateralCalibration" Margin="173,171,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left" Width="116" Text="{Binding Path=Settings.OverlaySettingsObj.LateralCalibration}" TabIndex="13"/>
+                            <Label x:Name="lblLateralCalibration" Content="Lateral Calibration" HorizontalAlignment="Left" Margin="10,173,0,0" VerticalAlignment="Top"/>
+                            <Button x:Name="butScanForPort" Content="Scan For Port" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="444,43,0,0" Height="28" IsEnabled="{Binding ElementName=cmbBxSelectedOverlay, Path=SelectedItem.DriverSupportsPortScanning, UpdateSourceTrigger=PropertyChanged}" Command="{Binding ScanSerialPortsForSelectedOverlay}" TabIndex="15" />
+                            <!--IsEnabled="{Binding ElementName=cmbBxSelectedOverlay, Path=SelectedItem.UsesV2DriverLoader}"-->
+                            <CheckBox x:Name="chkBxUseV1Control" Content="Use original &quot;V1&quot; Overlay Driver" Margin="444,8,0,0" HorizontalAlignment="Left" Width="248" Height="28" VerticalAlignment="Top" IsChecked="{Binding ElementName=cmbBxSelectedOverlay, Path=SelectedItem.ForceUseV1Control}" IsEnabled="{Binding ElementName=cmbBxSelectedOverlay, Path=SelectedItem.HasV1Control, TargetNullValue=false}" TabIndex="14"/>
+                            <Label x:Name="lblInclinometerPort" Content="Inclinometer Port (RST)" HorizontalAlignment="Left" Margin="10,245,0,0" VerticalAlignment="Top"/>
+                            <TextBox x:Name="tboxInclinometerPort" Text="{Binding Path=Settings.OverlaySettingsObj.InclinometerPort, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource ResourceKey=StrToNullableIntConverter}}" Margin="173,243,461,215"/>
+
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+
+            <TabItem Header="General Settings" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="104" Margin="0" TabIndex="1002">
+                <TabItem.Background>
+                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                        <GradientStop Color="#FFB8D2FF"/>
+                        <GradientStop Color="#FFE5E5E5" Offset="1"/>
+                    </LinearGradientBrush>
+                </TabItem.Background>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="8*"/>
+                        <ColumnDefinition Width="377*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFC0D4F0" Offset="0.222"/>
+                            <GradientStop Color="#FF4F9AFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <GroupBox Header="Grid Display Options" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,15,0,0" Height="136" Width="356" Grid.Column="1">
+                        <Grid>
+                            <ComboBox x:Name="cbTextCase" HorizontalAlignment="Left" VerticalAlignment="Top" Width="199" Margin="135,10,0,0" Height="28" SelectedItem="{Binding Settings.TextCase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Settings.TextCasesArray}" TabIndex="16"/>
+                            <Label Content="Text Case" Margin="10,10,270,0" Height="28" VerticalAlignment="Top"/>
+                            <CheckBox x:Name="cboxShowGridNumbers" Content="Show Grid Numbers" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,89,0,0" IsChecked="{Binding Settings.ShowGridNumbers, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="18"/>
+                            <Label Content="Display Type" Margin="10,43,252,0" Height="28" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cbDisplayType" HorizontalAlignment="Left" VerticalAlignment="Top" Width="199" Margin="135,43,0,0" Height="28" ItemsSource="{Binding Settings.TextDisplaysArray}" SelectedItem="{Binding Settings.TextDisplayType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="17"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Miscellaneous" VerticalAlignment="Top" Grid.Column="1" Margin="361,15,10,0" Height="136">
+                        <Grid>
+                            <CheckBox x:Name="cboxAutosaveReports" Content="AutoSave Reports" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,56,0,0" IsChecked="{Binding Settings.AutosaveReports, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="22"/>
+                            <CheckBox x:Name="cboxAutoRefreshAFS" Content="Auto Refresh AFS When Values Changed" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0" IsChecked="{Binding Settings.AutoRefreshAFS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="19"/>
+                            <CheckBox x:Name="cboxBackupProjects" Content="Backup Projects" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,33,0,0" ToolTip="Do not disable this option unless you absolutely have to!" IsChecked="{Binding Settings.BackupProjects, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="20"/>
+                            <Label Content="Default Project Path" VerticalAlignment="Top" Margin="10,78,174,0"/>
+                            <TextBox x:Name="tboxDefaultProjectPath" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="140,81,47,0" Text="{Binding Settings.DefaultProjectPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="24"/>
+                            <Button x:Name="butSetDefaultProjectPath" Content="..." VerticalAlignment="Top" Margin="325,81,10,0" Height="23" Command="{Binding SetDefaultProjectPathCommand}" TabIndex="25">
+                                <Button.Background>
+                                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                        <GradientStop Color="#FFD7E3F9"/>
+                                        <GradientStop Color="#FFA9C1FF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Button.Background>
+                            </Button>
+                            <CheckBox x:Name="cboxSplashScreen" Content="Enable Splash Screen" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="140,56,0,0" Width="140" IsChecked="{Binding Settings.EnableSplashScreen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="23"/>
+                            <CheckBox x:Name="cboxTurnRemarks" Content="Enable Remarks Persistence" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="140,33,0,0" Width="200" IsChecked="{Binding Settings.EnableRemarksPersistence, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="21"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Text-To-Speech Options" VerticalAlignment="Top" Grid.Column="1" Margin="0,156,10,0" Height="164">
+                        <Grid>
+                            <CheckBox x:Name="cboxSpeechEnabled" Content="Enable Text-To-Speech" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,17,0,0" IsChecked="{Binding Settings.TtsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="26"/>
+                            <ComboBox x:Name="cbTextToSpeechVoices" HorizontalAlignment="Left" VerticalAlignment="Top" Width="213" Margin="239,10,0,0" ItemsSource="{Binding Settings.SpeechSythVoices}" SelectedItem="{Binding Settings.TtsVoice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="27"/>
+                            <Label Content="TTS Speed" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="457,10,0,0"/>
+                            <ComboBox x:Name="cbTTSSpeed" VerticalAlignment="Top" Margin="527,10,10,0" ItemsSource="{Binding Settings.TtsSpeedArray}" SelectedItem="{Binding Settings.TtsSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="28"/>
+                            <Label Content="Voice" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="184,10,0,0" Width="50"/>
+                            <Label Content="TTS Test Text:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,37,0,0"/>
+                            <TextBox x:Name="tboxTTSTestText" TextWrapping="Wrap" Margin="10,68,10,10" Text="{Binding Settings.TtsTestText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="31"/>
+                            <Button x:Name="butTestTTS" Content="Test Text To Speech" VerticalAlignment="Top" Margin="304,43,10,0" Command="{Binding ReadTtsTextCommand}" TabIndex="30">
+                                <Button.Background>
+                                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                        <GradientStop Color="#FFD7E3F9"/>
+                                        <GradientStop Color="#FFA9C1FF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Button.Background>
+                            </Button>
+                            <Button x:Name="butOpenTtsInstructions" Content="Open Speech Recording Instructions" VerticalAlignment="Top" Margin="97,43,435,0" Command="{Binding OpenTTSRecordingInstructions}" TabIndex="29">
+                                <Button.Background>
+                                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                        <GradientStop Color="#FFD7E3F9"/>
+                                        <GradientStop Color="#FFA9C1FF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Button.Background>
+                            </Button>
+
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Advanced Options" Grid.Column="1" Margin="0,325,10,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="25"/>
+                            </Grid.RowDefinitions>
+
+                            <CheckBox x:Name="cboxTurnOverlay" Grid.Row="0" Grid.Column="0" Margin="5, 5, 0, 0" Content="Disable Video Feed Cloning" HorizontalAlignment="Left" VerticalAlignment="Top" Width="176" IsChecked="{Binding Settings.DisableVideoFeedCloning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="32"/>
+                            <CheckBox x:Name="cboxTurnDebugVideo" Grid.Row="1" Grid.Column="0" Margin="5, 5, 0, 0" Content="Enable Video Capture Debugging" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" IsChecked="{Binding Settings.EnableVideoDebugging, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="33"/>
+                            <CheckBox x:Name="cboxCompliancePrep" Grid.Row="2" Grid.Column="0" Margin="5, 5, 0, 0" Content="Disable Required Field Validation" VerticalAlignment="Top" IsChecked="{Binding Settings.DisableRequiredFieldValidation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="34"/>
+                            <CheckBox x:Name="cboxUseADODC" Grid.Row="3" Grid.Column="0" Margin="5, 5, 0, 0" Content="Use ADODC" VerticalAlignment="Top" ToolTip="ONLY uncheck this if you receive ADODC errors when connecting to an SQL project" IsChecked="{Binding Settings.UseAdodc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="35"/>
+                            <CheckBox Content="Disable Status Bar Updates" Grid.Row="4" Grid.Column="0" Margin="5, 5, 0, 0" VerticalAlignment="Top" IsChecked="{Binding Settings.DisableStatusBarUpdates, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="36"/>
+                            <ComboBox x:Name="comboBox" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="0, 5, 5, 0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" ItemsSource="{Binding Settings.ValidVideoRenderersArray}" SelectedItem="{Binding Settings.VideoRenderer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="37"/>
+                            <Label Content="Video Renderer:" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Margin="159,2,110,24"/>
+
+                        </Grid>
+                    </GroupBox>
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Address Book" TabIndex="1003">
+                <TabItem.DataContext>
+                    <addrBk:AddressBookViewModel x:Name="addrBookViewModelInstance"/>
+                </TabItem.DataContext>
+
+                <TabItem.Background>
+                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                        <GradientStop Color="#FFB8D2FF"/>
+                        <GradientStop Color="#FFE5E5E5" Offset="1"/>
+                    </LinearGradientBrush>
+                </TabItem.Background>
+                <TabItem.Resources>
+                    <addrBk:ConvertMissingImageToMissingImagePicture x:Key="MissingImageToNullConverterInstance"/>
+                </TabItem.Resources>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button x:Name="butSelectImage" Margin="10" Grid.Row="1" Grid.Column="0" Command="{Binding SelectNewLogo}" Foreground="{x:Null}" TabIndex="46">
+                        <Button.Style>
+                            <Style TargetType="{x:Type Button}">
+                                <Setter Property="Background" Value="{x:Null}"/>
+                                <Setter Property="BorderBrush" Value="{x:Null}"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type Button}">
+                                            <!--Just disabling the highlight border bullshit-->
+                                            <Border Name="Border" BorderThickness="0">
+                                                <ContentPresenter Margin="0" 
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" 
+                                 RecognizesAccessKey="True"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Opacity="0"/>
+                        </Button.Resources>
+                        <Image x:Name="imgSelectedLogo" Margin="10" Grid.Row="1" Grid.Column="0" Source="{Binding SelectedAddrBookContact.PathToLogo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource MissingImageToNullConverterInstance}}" IsHitTestVisible="True" OpacityMask="White" Stretch="Uniform" StretchDirection="Both"/>
+                        <!--Image Source="/ITpipes Config;component/Not-Quite-Art_Assets/No_Image_Available.png" Stretch="Fill"/-->
+                    </Button>
+
+
+                    <ListBox x:Name="lbAddressBookContacts" HorizontalAlignment="Left" Height="114" Margin="10,41,0,0" VerticalAlignment="Top" Width="376" ItemsSource="{Binding Path=CurAddressBookModel.AddressBookContactList}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAddrBookContact, Mode=OneWayToSource}" TabIndex="37">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="HandleItemReselectedInListBox"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                    <Label x:Name="label" Content="Address Book Contacts" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label1" Content="Templates" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Height="30"/>
+                    <ComboBox x:Name="cbTemplates" HorizontalAlignment="Left" Height="30" Margin="78,160,0,0" VerticalAlignment="Top" Width="135" ItemsSource="{Binding Path=CurAddressBookModel.TemplateContacts}" DisplayMemberPath="TemplateName" SelectedItem="{Binding SelectedTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="40"/>
+
+                    <GroupBox x:Name="groupBox" Header="Primary Contact Information" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="247" Width="366" Grid.Column="1" Grid.Row="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Label x:Name="lblContactName" Grid.Column="0" Grid.Row="0" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                            <Label x:Name="lblContactDepartment" Grid.Column="0" Grid.Row="1" Content="Department:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                            <Label x:Name="lblContactPhone" Grid.Column="0" Grid.Row="2" Content="Office Phone:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                            <Label x:Name="lblContactFax" Grid.Column="0" Grid.Row="3" Content="Fax:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                            <Label x:Name="lblContactEmail" Grid.Column="0" Grid.Row="4" Content="Email:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                            <Label x:Name="lblContactMobile" Grid.Column="0" Grid.Row="5" Content="Mobile Phone:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                            <TextBox x:Name="tboxContactName" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.Responsible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="53"/>
+                            <TextBox x:Name="tboxContactDepartment" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="1" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.Department, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="54"/>
+                            <TextBox x:Name="tboxContactPhone" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="2" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="55"/>
+                            <TextBox x:Name="tboxContactFax" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="3" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.ContactFax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="56"/>
+                            <TextBox x:Name="tboxContactEmail" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="4" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.ContactEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="57"/>
+                            <TextBox x:Name="tboxContactMobile" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="5" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.ContactMobileNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="58"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Name="groupBox1" Grid.Column="1" Header="Company Information" Margin="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Label x:Name="CompanyName" Grid.Column="0" Grid.Row="0" Margin="10,10,0,0" Content="Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                            <Label x:Name="CompanyCategory" Grid.Column="0" Grid.Row="1" Margin="10,10,0,0" Content="Category:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <Label x:Name="CompanyStreet" Grid.Column="0" Grid.Row="2" Margin="10,10,0,0" Content="Street:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                            <Label x:Name="CompanyCity" Grid.Column="0" Grid.Row="3" Margin="10,10,0,0" Content="City:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                            <Label x:Name="CompanyState" Grid.Column="0" Grid.Row="4" Margin="10,10,0,0" Content="State:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <Label x:Name="CompanyZip" Grid.Column="0" Grid.Row="5" Margin="10,10,0,0" Content="Zip:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+                            <TextBox x:Name="tboxCompanyName" Grid.Column="1" Grid.Row="0" Margin="10,10,0,0" HorizontalAlignment="Left" Height="27" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="47"/>
+                            <ComboBox x:Name="cmbBxCompanyCategory" Grid.Column="1" Grid.Row="1" Margin="10,10,0,0" HorizontalAlignment="Left" Height="27" ItemsSource="{Binding ValidContactTypes}" SelectedValue="{Binding SelectedAddrBookContact.ContactType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="48"/>
+                            <TextBox x:Name="tboxCompanyZip" Grid.Column="1" Grid.Row="2" Margin="10,10,0,0" HorizontalAlignment="Left" Height="27" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.Street, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="49"/>
+                            <TextBox x:Name="tboxCompanyState" Grid.Column="1" Grid.Row="3" Margin="10,10,0,0" HorizontalAlignment="Left" Height="27" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="50"/>
+                            <TextBox x:Name="tboxCompanyCity" Grid.Column="1" Grid.Row="4" Margin="10,10,0,0" HorizontalAlignment="Left" Height="27" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.ContactState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="51"/>
+                            <TextBox x:Name="tboxCompanyStreet" Grid.Column="1" Grid.Row="5" Margin="10,10,0,0" HorizontalAlignment="Left" Height="27" TextWrapping="Wrap" Text="{Binding SelectedAddrBookContact.Zipcode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="223" TabIndex="52"/>
+                        </Grid>
+                    </GroupBox>
+                    <ListBox x:Name="listBox" HorizontalAlignment="Left" Height="61" Margin="10,195,0,0" VerticalAlignment="Top" Width="376" ItemsSource="{Binding ElementName=cbTemplates, Path=SelectedItem.TemplateContacts}" SelectedItem="{Binding SelectedAddrBookContact, Mode=OneWayToSource}" DisplayMemberPath="Name" TabIndex="45">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="HandleItemReselectedInListBox"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                    <Button x:Name="butAddToAddrBkFromTpl" HorizontalAlignment="Left" Margin="218,160,0,0" VerticalAlignment="Top" Height="30" Width="38" Command="{Binding CopyTemplateContactToAddressBookCommand}" TabIndex="41">
+                        <Button.Background>
+                            <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                <GradientStop Color="#FFD7E3F9"/>
+                                <GradientStop Color="#FFA9C1FF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                        <Image Source="/ITpipes Config;component/Not-Quite-Art_Assets/Add to the up.png" Stretch="Uniform"/>
+                    </Button>
+                    <Button x:Name="butSendToTemplateFromAddrBk" Height="30" Margin="261,160,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="38" Command="{Binding CopyAddressBookContactToSelectedTemplateCommand}" TabIndex="42" >
+                        <Button.Background>
+                            <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                <GradientStop Color="#FFD7E3F9"/>
+                                <GradientStop Color="#FFA9C1FF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                        <Image Source="/ITpipes Config;component/Not-Quite-Art_Assets/Add to the Down.png" Stretch="Uniform"/>
+                    </Button>
+                    <Button x:Name="butDeleteTheThing" Margin="313,160,39,76" Command="{Binding DeleteSelectedContactCommand}" TabIndex="43">
+                        <Button.Background>
+                            <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                <GradientStop Color="#FFD7E3F9"/>
+                                <GradientStop Color="#FFA9C1FF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                        <Image Source="/ITpipes Config;component/Not-Quite-Art_Assets/DELETE THINGS.png" Stretch="Uniform"/>
+                    </Button>
+                    <Button x:Name="button" Content="Save Selected Contact To All Address Books" HorizontalAlignment="Left" Margin="147,10,0,0" VerticalAlignment="Top" Width="239" Command="{Binding SaveSelectedContactToAllTemplatesAndAddressBook}" Height="26" TabIndex="38">
+                        <Button.Background>
+                            <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                <GradientStop Color="#FFD7E3F9"/>
+                                <GradientStop Color="#FFBECCF0" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+                    <Button x:Name="butAddAThing" Margin="352,160,0,76" Command="{Binding AddNewContactCommand}" TabIndex="44">
+                        <Button.Background>
+                            <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                <GradientStop Color="#FFD7E3F9"/>
+                                <GradientStop Color="#FFA9C1FF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                        <Image Source="/ITpipes Config;component/Not-Quite-Art_Assets/ADD THINGS.png" Stretch="Uniform"/>
+                    </Button>
+                </Grid>
+
+            </TabItem>
+            <!--TabItem x:Name="BackupRestore" Header="Backup/Restore">
+                <TabItem.Background>
+                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                        <GradientStop Color="#FFB8D2FF"/>
+                        <GradientStop Color="#FFE5E5E5" Offset="1"/>
+                    </LinearGradientBrush>
+                </TabItem.Background>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+
+                    <GroupBox x:Name="grp" Grid.Row="0" Grid.Column="0" Grid.RowSpan="5" Grid.ColumnSpan="2" Margin="15" Header="Backups">
+                        <Grid>
+                            <ListBox >
+                            </ListBox>
+                        </Grid>
+                    </GroupBox>
+
+                    <Button Content="Create New Backup" Grid.Column="3" Grid.Row="0" Margin="10"/>
+                    <Button Content="Restore Selected Backup" Grid.Column="4" Grid.Row="0" Margin="10"/>
+
+                    <GroupBox Header="Backup Information" Grid.Column="2" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="5" Margin="20">
+                        <Grid>
+                            
+                        </Grid>
+                    </GroupBox>
+
+
+
+
+
+
+                </Grid>
+                
+                
+            </-->
+        </TabControl>
+        <ToolBarPanel x:Name="toolbar" Height="30" VerticalAlignment="Top">
+            <ToolBarPanel.Background>
+                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                    <GradientStop Color="#FFD2DAE8" Offset="1"/>
+                    <GradientStop Color="#FFB8D2FF"/>
+                </LinearGradientBrush>
+            </ToolBarPanel.Background>
+            <Label Content="Changes are automatically saved on program exit. You may close this application at any time once you have made your desired changes" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        </ToolBarPanel>
+
+
+
+    </Grid>
+</Window>
